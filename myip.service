@@ -1,0 +1,11 @@
+[Unit]
+Description=Let's our exteranl server know what's my desktop external address
+Wants=networking.service sshd.service
+
+[Service]
+User=user
+Group=users
+ExecStart=/opt/tunnel/myip.sh
+
+[Install]
+WantedBy=multi-user.target
