@@ -15,7 +15,7 @@ fi
 
 Once you got that desktop address information on your server, you can make it **semi-public** by means of a hidden link on your personal webpage:
 
-1) mginx (commented out protection by password): 
+1) nginx (commented out protection by password): 
 
 ```
     location /desktop/ {
