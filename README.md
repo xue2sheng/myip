@@ -31,3 +31,49 @@ Once you got that desktop address information on your server, you can make it **
 ```
 <a title="Desktop" href="/desktop/index.html" target="_blank">&nbsp;&nbsp;&nbsp;</a>
 ```
+
+## Simple HTTPS server
+
+Following [Denis Denisov's instructions](https://github.com/denji/golang-tls), a simple HTTPS server will be running on the desktop box, waiting for http/https request:
+
+```
+# Key considerations for algorithm "ECDSA" (X25519 || ≥ secp384r1)
+# https://safecurves.cr.yp.to/
+# List ECDSA the supported curves (openssl ecparam -list_curves)
+openssl ecparam -genkey -name secp384r1 -out server.key
+
+# Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+```
+
+```
+package main
+
+import (
+    "net/http"
+    "log"
+    "net/url"
+)
+
+func HelloServer(w http.ResponseWriter, req *http.Request) {
+    w.Header().Set("Content-Type", "text/html")
+    w.Write([]byte("<!DOCTYPE html><html><head><title>Archlinux</title></head><body><h1>Archlinux</h1></body></html>"))
+}
+
+func redirectToHttps(w http.ResponseWriter, r *http.Request) {
+	targetUrl := url.URL{ Scheme: "https", Host: r.Host, Path: r.URL.Path, RawQuery: r.URL.RawQuery, }
+	http.Redirect(w, r, targetUrl.String(), http.StatusMovedPermanently)
+}
+
+func main() {
+    http.HandleFunc("/", HelloServer)
+    go http.ListenAndServeTLS(":443", "/home/user/Code/simpleHTTPS/server.crt", "/home/user/Code/simpleHTTPS/server.key", nil)
+    err := http.ListenAndServe(":80", http.HandlerFunc(redirectToHttps))
+    if err != nil {
+        log.Printf("ListenAndServe: ", err)
+    }
+    log.Println("Listening to http and https")
+}
+```
+
+
