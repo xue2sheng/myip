@@ -1,0 +1,10 @@
+[Unit]
+Description=Simple HTTPS sever (HTTP redirected to HTTPS)
+Wants=networking.service 
+
+[Service]
+ExecStart=/home/user/Code/simpleHTTPS/simpleHTTPS
+
+[Install]
+WantedBy=multi-user.target
+
